@@ -3,12 +3,12 @@
 #include<fstream>
 #include<sstream>
 #include<list>
-
+#include<cmath>
 using namespace std;
 
 
 
-
+// outputs a list of strings
 void split(const string& str, list<string>& units) {
 	string num;
 	int N = str.size();
@@ -55,26 +55,31 @@ private:
 	string current;
 };
 
+/*
+The calculator class takes in a string 
+it loops through the character of every string
+the exp method send the current character to the term method which then sends it to the factor method
+this ensures that BEDMAS is being followed*/
 Calculator::Calculator(const string& calculation) {
 	string s = calculation;
 
 	split(s, units);
 
-	current = units.front();
+	current = units.front(); 
 }
 
-void Calculator::next() {
-	units.pop_front();
+void Calculator::next() { // changes the "current" string to the next character of string
+	units.pop_front(); 
 	if (!units.empty()) {
 		current = units.front();
 
 	}
 	else {
-		current = string();
+		current = string(); 
 	}
 }
 
-int Calculator::exp() {
+int Calculator::exp() { // if it is a + or - currently, that operation is performed, returns the final result as everything calculated ends up here being added/subtracted as the last step
 	int result = term();
 	while (current == "+" || current == "-"){
 		if (current == "+"){
@@ -91,9 +96,13 @@ int Calculator::exp() {
 	return result;
 }
 
-int Calculator::term() {
+int Calculator::term() { // checks for * or / or ^ and sends to factor 
 	int result = factor();
-	while (current == "*" || current == "/") {
+	while (current == "*" || current == "/" || current == "^") {
+		if (current == "^") {
+			next();
+			result = pow(result, factor());
+		}
 		if (current == "*") {
 			next();
 			result *= factor();
@@ -110,7 +119,7 @@ int Calculator::term() {
 	return result;
 }
 
-int Calculator::factor() {
+int Calculator::factor() { // checks for open brackets and then goes back to exp()
 	int result;
 
 	if (current == "(") {
@@ -125,7 +134,7 @@ int Calculator::factor() {
 	return result;
 }
 
-int Calculator::toInt(const string& s) {
+int Calculator::toInt(const string& s) { // converts string character to int for calculations
 	stringstream ss;
 	ss << s;
 	int x;
@@ -135,16 +144,16 @@ int Calculator::toInt(const string& s) {
 
 
 int calculate(string s) {
-	Calculator calculator(s);
-	return calculator.exp();
+	Calculator calculator(s); // creates an object of class calculator
+	return calculator.exp(); // exp method will return the final answer as it calls the other methods from within
 }
 
 int main() {
 	string calculation;
 
 	
-	fstream rfile("computation_in.txt");
-	ofstream wfile("computation_out.txt");
+	fstream rfile("computation_in.txt"); // file containing calculation to be performed
+	ofstream wfile("computation_out.txt"); // file answer is written to
 	if (!rfile) {
 		cout << "No file" << endl;
 
